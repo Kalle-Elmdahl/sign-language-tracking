@@ -1,6 +1,6 @@
 import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 async function loadData() {
 	const vision = await FilesetResolver.forVisionTasks(
@@ -20,26 +20,27 @@ async function loadData() {
 export default function HandRecogniser() {
 	const [handLandmarker, setHandLandmarker] = useState<null | HandLandmarker>(null)
 	const video = useRef<HTMLVideoElement>(null)
+	const canvas = useRef<HTMLCanvasElement>(null)
 	const lastVideoTime = useRef<number>(-1)
 	const shouldRun = useRef<boolean>(false)
     const [showCanvas, setShowCanvas] = useState<boolean>(false)
+	const context = useMemo(() => canvas.current !== null && canvas.current.getContext("2d"), [canvas])
 
 	useEffect(() => {
 		loadData().then(handLandmarker => setHandLandmarker(handLandmarker))
 	}, [setHandLandmarker])
 
 	const predictWebcam = () => {
-		console.log("Render loop", shouldRun.current)
-		if (!video.current || !handLandmarker || !shouldRun.current) return
+		if (!video.current || !context || !handLandmarker || !shouldRun.current) return
 		if (video.current.currentTime !== lastVideoTime.current) {
 			const detections = handLandmarker.detectForVideo(video.current, video.current.currentTime)
 			console.log(detections)
 			lastVideoTime.current = video.current.currentTime
+			context.drawImage(video.current, 0, 0)
+
 		}
 		requestAnimationFrame(predictWebcam)
 	}
-
-	console.log("shouldRun", shouldRun.current)
 
 	const handleStartVideo = () => {
 		shouldRun.current = true
@@ -59,18 +60,17 @@ export default function HandRecogniser() {
 		<div>
 			<button onClick={() => handleStartVideo()}>Start</button>
 			<button onClick={() => handleStopVideo()}>Stop</button>
+			<video
+				ref={video}
+				width="1280px"
+				height="720px"
+				style={{display: 'none'}}
+				autoPlay
+				playsInline
+				onLoadedData={predictWebcam}
+			/>
 			{showCanvas && (
-				<div>
-					<video
-						ref={video}
-						width="1280px"
-						height="720px"
-						autoPlay
-						playsInline
-						onLoadedData={predictWebcam}
-					/>
-					<canvas id="output_canvas" width="1280" height="720" />
-				</div>
+					<canvas ref={canvas} id="output_canvas" width="1280" height="720" />
 			)}
 		</div>
 	)
