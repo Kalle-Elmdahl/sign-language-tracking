@@ -22,6 +22,7 @@ export default function HandRecogniser() {
 	const video = useRef<HTMLVideoElement>(null)
 	const lastVideoTime = useRef<number>(-1)
 	const shouldRun = useRef<boolean>(false)
+    const [showCanvas, setShowCanvas] = useState<boolean>(false)
 
 	useEffect(() => {
 		loadData().then(handLandmarker => setHandLandmarker(handLandmarker))
@@ -42,17 +43,35 @@ export default function HandRecogniser() {
 
 	const handleStartVideo = () => {
 		shouldRun.current = true
+        setShowCanvas(true)
 		navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
 			if (!video.current) return
 			video.current.srcObject = stream
 		})
 	}
+
+	const handleStopVideo = () => {
+		shouldRun.current = false
+        setShowCanvas(false)
+	}
+
 	return (
 		<div>
 			<button onClick={() => handleStartVideo()}>Start</button>
-			<button onClick={() => (shouldRun.current = false)}>Stop</button>
-			<video ref={video} width="1280px" height="720px" autoPlay playsInline onLoadedData={predictWebcam} />
-			<canvas id="output_canvas" width="1280" height="720" />
+			<button onClick={() => handleStopVideo()}>Stop</button>
+			{showCanvas && (
+				<div>
+					<video
+						ref={video}
+						width="1280px"
+						height="720px"
+						autoPlay
+						playsInline
+						onLoadedData={predictWebcam}
+					/>
+					<canvas id="output_canvas" width="1280" height="720" />
+				</div>
+			)}
 		</div>
 	)
 }
