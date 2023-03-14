@@ -3,7 +3,7 @@ import HandRecogniser from "./components/HandRecogniser"
 import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import HandRecogniserLoader, { Vision } from "./components/HandRecogniserLoader"
+import HandRecogniserMain, { Vision } from "./components/HandRecogniserMain"
 
 async function loadVision() {
 	return await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm")
@@ -11,6 +11,7 @@ async function loadVision() {
 
 function App() {
 	const [vision, setVision] = useState<null | Vision>(null)
+	const [isStarted, setIsStarted] = useState<boolean>(false)
 
 	useEffect(() => {
 		loadVision().then(setVision)
@@ -20,7 +21,11 @@ function App() {
 
 	return (
 		<div className="App">
-			<HandRecogniserLoader vision={vision} />
+			{isStarted ? (
+				<HandRecogniserMain vision={vision} />
+			) : (
+				<button onClick={() => setIsStarted(true)}>Start</button>
+			)}
 		</div>
 	)
 }

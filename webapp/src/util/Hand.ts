@@ -57,27 +57,6 @@ export default class Hand {
 		Hand.drawHandPart(context, this.pinky, drawOptions)
 	}
 
-	drawHandProgress(context: CanvasRenderingContext2D, progress: number, drawOptions?: DrawOptions) {
-		const { scaleX, scaleY } = { ...defaultDrawOptions, ...drawOptions }
-		const positions = [...this.thumb, ...this.indexFinger, ...this.middleFinger, ...this.ringFinger, ...this.pinky]
-		const lowestY = Math.min(...positions.map(pos => pos.y))
-		const highestY = Math.max(...positions.map(pos => pos.y))
-
-        console.log(0, lowestY * scaleY, scaleX, (highestY - lowestY) * progress * scaleY)
-
-		context.globalCompositeOperation = "lighter"
-		context.fillRect(
-			0,
-			(lowestY + (highestY - lowestY) * (1 - progress)) * scaleY,
-			scaleX,
-			(highestY - lowestY) * progress * scaleY
-		)
-
-        this.drawHand(context, drawOptions)
-
-		context.globalCompositeOperation = "source-over"
-	}
-
 	static drawHandPart(context: CanvasRenderingContext2D, part: Coordinate[], drawOptions?: DrawOptions) {
 		if (part.length === 0) throw new Error("Illegal hand part")
 		const { scaleX, scaleY } = { ...defaultDrawOptions, ...drawOptions }
