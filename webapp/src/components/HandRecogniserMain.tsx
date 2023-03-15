@@ -26,7 +26,7 @@ function TrackHands(video: HTMLVideoElement, handRecogniser: HandLandmarker, set
 	let lastVideoTime = 0
 
 	const detect = () => {
-        if(video.paused) return
+		if (video.paused) return
 		console.log("Running detect: ", video.ended, video.readyState, video.paused)
 		if (video.currentTime !== lastVideoTime) {
 			++lastVideoTime
@@ -42,7 +42,7 @@ function TrackHands(video: HTMLVideoElement, handRecogniser: HandLandmarker, set
 
 export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) {
 	const [stream, setStream] = useState<MediaStream | null>(null)
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState<boolean>(true)
 	const [handLandmarker, setHandLandmarker] = useState<HandLandmarker | null>(null)
 	const [hands, setHands] = useState<Hand[]>([])
 
@@ -50,13 +50,17 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
 	const lastVideoTime = useRef<number>(0)
 
 	useEffect(() => {
+		handlePlay()
+	}, [])
+
+	const handlePlay = useCallback(() => {
 		setLoading(true)
 		createHandLandmarker(vision)
 			.then(setHandLandmarker)
 			.then(() => navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } }))
 			.then(stream => setStream(stream))
 			.then(() => setLoading(false))
-	}, [])
+	}, [stream])
 
 	const handlePause = useCallback(() => {
 		if (!stream) return
@@ -91,9 +95,10 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
 			) : (
 				<>
 					<button onClick={handlePause}>Stop</button>
+					{video.current?.paused && <button onClick={handlePlay}>Start</button>}
+					<HandRecogniserLoader video={video.current as HTMLVideoElement} hands={hands} />
 				</>
 			)}
-			<HandRecogniserLoader video={video.current as HTMLVideoElement} hands={hands} />
 		</div>
 	)
 }

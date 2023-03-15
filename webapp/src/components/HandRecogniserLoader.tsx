@@ -13,10 +13,8 @@ export default function HandRecogniserLoader({ video, hands }: HandRecogniserPro
 	const [loaded, setLoaded] = useState<boolean>(false)
 
 	useEffect(() => {
-		if (!handIcon.current) return
-
 		if (hands.length === 2) {
-			handIcon.current.classList.add("animate")
+			handIcon.current?.classList.add("animate")
 			const timeout = setTimeout(() => setLoaded(true), 1000)
 
 			return () => {
@@ -24,14 +22,16 @@ export default function HandRecogniserLoader({ video, hands }: HandRecogniserPro
 				handIcon.current?.classList.remove("animate")
 			}
 		} else setLoaded(false)
-	}, [hands.length, handIcon])
+	}, [hands.length, handIcon.current])
 
 	if (!loaded) {
 		return (
 			<div className="hand-loader">
-				Show your hands
-				<HandIcon />
-				<HandIcon color="#9ad093" className="loading-hand" ref={handIcon} />
+				<h2>Show your hands</h2>
+				<div>
+					<HandIcon />
+					<HandIcon color="#9ad093" className="loading-hand" ref={handIcon} />
+				</div>
 			</div>
 		)
 	}
