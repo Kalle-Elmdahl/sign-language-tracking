@@ -56,6 +56,14 @@ button:focus-visible {
 	outline: 4px auto -webkit-focus-ring-color;
 }
 
+input {
+	width: 100%;
+	padding: 10px 20px;
+	font-size: 16px;
+	border: 1px solid transparent;
+    border-radius: 4px;
+}
+
 .hand-loader {
 	position: absolute;
 	top: 50%;
@@ -99,4 +107,30 @@ button:focus-visible {
 	width: 100%;
 	aspect-ratio: 16 / 9;
 	z-index: -1;
+}
+
+.sequence-selector-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.4);
+	z-index: 100;
+}
+
+.sequence-selector {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 500px;
+	background: #555;
+	padding: 30px;
+	z-index: 101;
+}
+
+.sequence-selector,
+.sequence-selector div {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	align-items: flex-start;
 }

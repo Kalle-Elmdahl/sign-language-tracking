@@ -5,8 +5,13 @@ import HandRecogniser from "./HandRecogniser"
 import HandIcon from "./icons/HandIcon"
 import Hand from "../util/Hand"
 import HandRecogniserLoader from "./HandRecogniserLoader"
+import HandRecorder from "./HandRecorder"
+import { Sequence } from "../util/types"
+import SequenceSelector from "./SequenceSelector"
 
 export type Vision = Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
+
+const LOCAL_STORAGE_KEY = "__SIGN_LANGUAGE_SEQUENCE"
 
 async function createHandLandmarker(vision: Vision) {
 	return await HandLandmarker.createFromOptions(vision, {
@@ -45,6 +50,10 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
 	const [loading, setLoading] = useState<boolean>(true)
 	const [handLandmarker, setHandLandmarker] = useState<HandLandmarker | null>(null)
 	const [hands, setHands] = useState<Hand[]>([])
+	const [sequences, setSequences] = useState<Sequence[]>(() =>
+		JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "[]")
+	)
+	const [selectedSequence, setSelectedSequence] = useState<number | null>(null)
 
 	const video = useRef<HTMLVideoElement>(null)
 	const lastVideoTime = useRef<number>(0)
@@ -68,6 +77,10 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
 		setStream(null)
 		setHandLandmarker(null)
 	}, [stream])
+
+	const handleSaveSequences = () => {
+		window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sequences))
+	}
 
 	useEffect(() => {
 		if (!video.current) return
@@ -94,8 +107,11 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
 				<div>Loading...</div>
 			) : (
 				<>
+					<SequenceSelector {...{ sequences, setSequences, selectedSequence, setSelectedSequence }} />
 					<button onClick={handlePause}>Stop</button>
+					<button onClick={handleSaveSequences}>Save sequnces</button>
 					{video.current?.paused && <button onClick={handlePlay}>Start</button>}
+					{selectedSequence === null || <HandRecorder hands={hands} sequence={sequences[selectedSequence]} />}
 					<HandRecogniserLoader video={video.current as HTMLVideoElement} hands={hands} />
 				</>
 			)}
