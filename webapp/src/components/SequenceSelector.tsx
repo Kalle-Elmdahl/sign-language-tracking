@@ -1,9 +1,10 @@
 import React, { useState } from "react"
 import { Sequence } from "../util/types"
+import { SequenceAction } from "./HandRecogniserMain"
 
 interface SequenceSelectorProps {
 	sequences: Sequence[]
-	setSequences: React.Dispatch<React.SetStateAction<Sequence[]>>
+	setSequences: React.Dispatch<SequenceAction>
 	selectedSequence: null | number
 	setSelectedSequence: React.Dispatch<React.SetStateAction<number | null>>
 }
@@ -14,7 +15,7 @@ export default function SequenceSelector(props: SequenceSelectorProps) {
 	const [newSequenceName, setNewSequenceName] = useState("")
 
 	const handleNewSequence = () => {
-		setSequences(sequences => [...sequences, { name: newSequenceName, elements: [] }])
+		setSequences({ type: "CREATE", payload: newSequenceName })
 		setNewSequenceName("")
 	}
 

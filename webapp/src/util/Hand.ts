@@ -62,7 +62,6 @@ export default class Hand {
 		const { scaleX, scaleY } = { ...defaultDrawOptions, ...drawOptions }
 		context.beginPath()
 
-		context.lineWidth = 20
 		context.moveTo(part[0].x * scaleX, part[0].y * scaleY)
 		context.lineTo((part.at(-1)?.x as number) * scaleX, (part.at(-1)?.y as number) * scaleY)
 		context.stroke()

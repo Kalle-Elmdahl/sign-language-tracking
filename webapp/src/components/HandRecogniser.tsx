@@ -21,7 +21,6 @@ export default function HandRecogniser({ video, hands }: HandRecogniserProps) {
 
 	useLayoutEffect(() => {
 		if (!canvas.current || !context) return
-		console.log(hands.at(0))
 
 		const canvasWidth = canvas.current.width
 		const canvasHeight = canvas.current.height
@@ -38,6 +37,7 @@ export default function HandRecogniser({ video, hands }: HandRecogniserProps) {
 		}
         
 		context.strokeStyle = "#5EBB45"
+		context.lineWidth = 20
 		hands.forEach(hand => hand.drawHand(context, drawOptions))
 
 		context.setTransform(1, 0, 0, 1, 0, 0)
@@ -56,7 +56,7 @@ export default function HandRecogniser({ video, hands }: HandRecogniserProps) {
 
 	return (
 		<div>
-			<canvas ref={canvas} />
+			<canvas ref={canvas} className="main-canvas" />
 		</div>
 	)
 }
