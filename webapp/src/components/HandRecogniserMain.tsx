@@ -3,7 +3,7 @@ import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import HandRecogniser from "./HandRecogniser"
 import HandIcon from "./icons/HandIcon"
-import Hand from "../util/Hand"
+import Hand, { HandPosition } from "../util/Hand"
 import HandRecogniserLoader from "./HandRecogniserLoader"
 import HandRecorder from "./HandRecorder"
 import { Sequence } from "../util/types"
@@ -77,6 +77,19 @@ function sequencesReducer(state: Sequence[], { type, payload }: SequenceAction) 
   }
 }
 
+interface SequenceStored {
+  name: string
+  elements: [HandPosition, HandPosition][]
+}
+
+function initSequences() {
+  const sequences = JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "[]") as SequenceStored[]
+  return sequences.map((sequence) => ({
+    ...sequence,
+    elements: sequence.elements.map(([left, right]) => [new Hand(left), new Hand(right)]),
+  })) satisfies Sequence[]
+}
+
 export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) {
   const [stream, setStream] = useState<MediaStream | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
@@ -86,7 +99,7 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
   const [sequences, setSequences] = useReducer<React.Reducer<Sequence[], SequenceAction>, Sequence[]>(
     sequencesReducer,
     [],
-    () => JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "[]")
+    initSequences
   )
   const [selectedSequence, setSelectedSequence] = useState<number | null>(null)
 
