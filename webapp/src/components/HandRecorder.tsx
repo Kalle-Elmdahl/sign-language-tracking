@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react"
 import Hand from "../util/Hand"
 import { Sequence } from "../util/types"
-import { SequenceAction } from "./HandRecogniserMain"
 import HandPreview from "./HandPreview"
+import { SequenceAction } from "../util/SequenceReducer"
 
 interface HandRecorderProps {
   hands: Hand[]
@@ -41,11 +41,25 @@ export default function HandRecorder(props: HandRecorderProps) {
       <button onClick={handleAdd}>Add position</button>
       {countdown.current >= 0 && <div className="recorder-countdown">{countdown.current}</div>}
       <div className="sequence-previewer">
-        <h5>{sequence.name}</h5>
+        <h3>{sequence.name} (Click frame to delete)</h3>
+        {sequence.elements.length === 0 && (
+          <p>No frames added to sequence</p>
+        )}
         <div>
           <div className="sequence-previewer-list">
             {sequence.elements.map((hands, index) => (
-              <HandPreview key={index} hands={hands} width={300} height={(300 * 9) / 16} />
+              <HandPreview
+                key={index}
+                hands={hands}
+                width={(175 * 16) / 9}
+                height={175}
+                onClick={() =>
+                  setSequence({
+                    type: "REMOVE_ELEMENT",
+                    payload: { sequence, index },
+                  })
+                }
+              />
             ))}
           </div>
         </div>

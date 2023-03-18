@@ -11,15 +11,14 @@ const HandPreview = memo(function HandPreview(props: HandPreviewProps) {
 
   useEffect(() => {
     const context = canvas.current?.getContext("2d")
-    console.log("context: ", context, canvas.current)
     if (!context || !canvas.current) return
 
     const rect = canvas.current.getBoundingClientRect()
-    console.log(rect)
 
     context.strokeStyle = "#5EBB45"
     context.lineCap = "round"
     context.lineWidth = 10
+    context.clearRect(0, 0, rect.width, rect.height)
 
     hands.forEach((hand) =>
       hand.drawHand(context, {

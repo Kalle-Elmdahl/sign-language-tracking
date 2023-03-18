@@ -55,7 +55,7 @@ export default function HandRecogniser({ video, hands }: HandRecogniserProps) {
 	}, [])
 
 	return (
-		<div>
+		<div className="hand-recoginser">
 			<canvas ref={canvas} className="main-canvas" />
 		</div>
 	)

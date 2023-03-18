@@ -4,14 +4,13 @@ import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } 
 import HandRecogniser from "./HandRecogniser"
 import HandIcon from "./icons/HandIcon"
 import Hand, { HandPosition } from "../util/Hand"
-import HandRecogniserLoader from "./HandRecogniserLoader"
+import HandRecogniserManager from "./HandRecogniserManager"
 import HandRecorder from "./HandRecorder"
 import { Sequence } from "../util/types"
 import SequenceSelector from "./SequenceSelector"
+import { SequenceAction, initSequences, saveSequences, sequencesReducer } from "../util/SequenceReducer"
 
 export type Vision = Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
-
-const LOCAL_STORAGE_KEY = "__SIGN_LANGUAGE_SEQUENCE"
 
 async function createHandLandmarker(vision: Vision) {
   return await HandLandmarker.createFromOptions(vision, {
@@ -31,6 +30,7 @@ function TrackHands(video: HTMLVideoElement, handRecogniser: HandLandmarker, set
   let lastVideoTime = 0
 
   const detect = () => {
+    console.log("Paused", video.paused)
     if (video.paused) return
     if (video.currentTime !== lastVideoTime) {
       ++lastVideoTime
@@ -44,57 +44,12 @@ function TrackHands(video: HTMLVideoElement, handRecogniser: HandLandmarker, set
   requestAnimationFrame(detect)
 }
 
-interface CreateSequenceAction {
-  type: "CREATE"
-  payload: string
-}
-
-interface AddElementAction {
-  type: "ADD_ELEMENT"
-  payload: { sequence: Sequence; element: Hand[] }
-}
-
-export type SequenceAction = CreateSequenceAction | AddElementAction
-
-function sequencesReducer(state: Sequence[], { type, payload }: SequenceAction) {
-  switch (type) {
-    case "CREATE":
-      return [...state, { name: payload, elements: [] }]
-
-    case "ADD_ELEMENT":
-      if (payload.element.length !== 2) return state
-      return state.map((s) => {
-        if (s === payload.sequence)
-          return {
-            ...s,
-            elements: [...s.elements, payload.element as [Hand, Hand]],
-          }
-        return s
-      })
-
-    default:
-      return state
-  }
-}
-
-interface SequenceStored {
-  name: string
-  elements: [HandPosition, HandPosition][]
-}
-
-function initSequences() {
-  const sequences = JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "[]") as SequenceStored[]
-  return sequences.map((sequence) => ({
-    ...sequence,
-    elements: sequence.elements.map(([left, right]) => [new Hand(left), new Hand(right)]),
-  })) satisfies Sequence[]
-}
-
 export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) {
   const [stream, setStream] = useState<MediaStream | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [handLandmarker, setHandLandmarker] = useState<HandLandmarker | null>(null)
   const [hands, setHands] = useState<Hand[]>([])
+  const [isPlaying, setIsPlaying] = useState<boolean>(false)
 
   const [sequences, setSequences] = useReducer<React.Reducer<Sequence[], SequenceAction>, Sequence[]>(
     sequencesReducer,
@@ -107,28 +62,34 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
   const lastVideoTime = useRef<number>(0)
 
   useEffect(() => {
-    handlePlay()
-  }, [])
-
-  const handlePlay = useCallback(() => {
+    let streamRef: MediaStream | null = null
     setLoading(true)
+
     createHandLandmarker(vision)
       .then(setHandLandmarker)
       .then(() => navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } }))
-      .then((stream) => setStream(stream))
-      .then(() => setLoading(false))
-  }, [stream])
+      .then((stream) => {
+        streamRef = stream
+        setStream(stream)
+        stream.getTracks().forEach((track) => (track.enabled = false))
+        setLoading(false)
+      })
+    return () => streamRef?.getTracks().forEach((track) => track.stop())
+  }, [])
+
+  const handlePlay = useCallback(() => {
+    if (!video.current) return
+
+    video.current?.play()
+    stream?.getTracks().forEach((track) => (track.enabled = true))
+    TrackHands(video.current as HTMLVideoElement, handLandmarker as HandLandmarker, setHands)
+  }, [stream, video.current, handLandmarker, setHands])
 
   const handlePause = useCallback(() => {
     if (!stream) return
-    stream.getTracks().forEach((track) => track.stop())
-    setStream(null)
-    setHandLandmarker(null)
+    video.current?.pause()
+    stream.getTracks().forEach((track) => (track.enabled = false))
   }, [stream])
-
-  const handleSaveSequences = () => {
-    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sequences))
-  }
 
   useEffect(() => {
     if (!video.current) return
@@ -137,39 +98,34 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
     video.current.srcObject = stream || null
   }, [stream])
 
-  const handleOnLoadedData = () =>
-    TrackHands(video.current as HTMLVideoElement, handLandmarker as HandLandmarker, setHands)
-
   return (
-    <div className="hand-recoginser">
-      <video
-        ref={video}
-        style={{ display: "none" }}
-        width="1280"
-        height="720"
-        autoPlay
-        playsInline
-        onLoadedData={handleOnLoadedData}
-      />
+    <>
+      <video ref={video} style={{ display: "none" }} width="1280" height="720" autoPlay playsInline />
       {loading ? (
         <div>Loading...</div>
+      ) : isPlaying ? (
+        <>
+          <button onClick={() => setIsPlaying(false)}>Exit sequence</button>
+          <HandRecogniserManager video={video.current as HTMLVideoElement} hands={hands} />
+        </>
       ) : (
         <>
           <SequenceSelector {...{ sequences, setSequences, selectedSequence, setSelectedSequence }} />
           {selectedSequence === null || (
             <HandRecorder hands={hands} sequence={sequences[selectedSequence]} setSequence={setSequences} />
           )}
-          <button onClick={handleSaveSequences}>Save sequnces</button>
-          {video.current?.paused ? (
-            <button onClick={handlePlay}>Start</button>
-          ) : (
+          <button onClick={() => saveSequences(sequences)}>Save sequnces</button>
+          {stream?.getTracks().at(0)?.enabled ? (
             <>
-              <button onClick={handlePause}>Stop</button>
-              <HandRecogniserLoader video={video.current as HTMLVideoElement} hands={hands} />
+              {selectedSequence === null || <button onClick={() => setIsPlaying(true)}>Play sequence</button>}
+              <button onClick={handlePause}>Stop Tracking</button>
+              <HandRecogniserManager video={video.current as HTMLVideoElement} hands={hands} />
             </>
+          ) : (
+            <button onClick={handlePlay}>Start Tracking</button>
           )}
         </>
       )}
-    </div>
+    </>
   )
 }
