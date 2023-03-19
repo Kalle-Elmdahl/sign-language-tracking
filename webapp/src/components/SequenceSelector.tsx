@@ -24,6 +24,8 @@ export default function SequenceSelector(props: SequenceSelectorProps) {
     setIsOpen(false)
   }
 
+  const handleDelete = (payload: number) => () => setSequences({type: 'DELETE', payload})
+ 
   if (!isOpen) return <button onClick={() => setIsOpen(true)}>View Sequences</button>
 
   return (
@@ -41,16 +43,21 @@ export default function SequenceSelector(props: SequenceSelectorProps) {
           <button onClick={handleNewSequence}>Add new sequence</button>
         </div>
         <h2>Your sequences</h2>
-        {sequences.map((sequence, index) => (
-          <div key={sequence.name}>
-            <p>{sequence.name} </p>
-            {selectedSequence === index ? (
-              <button onClick={() => handleSelect(null)}>Deselect</button>
-            ) : (
-              <button onClick={() => handleSelect(index)}>Select</button>
-            )}
-          </div>
-        ))}
+        <div className="sequences">
+          {sequences.map((sequence, index) => (
+            <div key={sequence.name}>
+              <p>{sequence.name} </p>
+              <div className="actions">
+                <button onClick={handleDelete(index)}>Remove</button>
+                {selectedSequence === index ? (
+                  <button onClick={() => handleSelect(null)}>Deselect</button>
+                ) : (
+                  <button onClick={() => handleSelect(index)}>Select</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   )

@@ -1,6 +1,6 @@
 import Hand from "./Hand"
 
 export interface Sequence {
-    name: string
-    elements: [Hand, Hand][]
+  name: string
+  elements: [Hand, Hand][]
 }

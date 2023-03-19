@@ -6,9 +6,10 @@ import Hand, { refHand } from "../util/Hand"
 interface HandRecogniserProps {
 	video: HTMLVideoElement
 	hands: Hand[]
+  refHand?: [Hand, Hand]
 }
 
-export default function HandRecogniser({ video, hands }: HandRecogniserProps) {
+export default function HandRecogniser({ video, hands, refHand }: HandRecogniserProps) {
 	const canvas = useRef<HTMLCanvasElement>(null)
 	const context = useMemo(() => {
 		if (canvas.current === null) return
@@ -21,6 +22,8 @@ export default function HandRecogniser({ video, hands }: HandRecogniserProps) {
 
 	useLayoutEffect(() => {
 		if (!canvas.current || !context) return
+
+    console.log("refHand", refHand)
 
 		const canvasWidth = canvas.current.width
 		const canvasHeight = canvas.current.height
@@ -38,6 +41,10 @@ export default function HandRecogniser({ video, hands }: HandRecogniserProps) {
         
 		context.strokeStyle = "#5EBB45"
 		context.lineWidth = 20
+    if(refHand) {
+      refHand.forEach(hand => hand.drawHand(context, drawOptions))
+      context.strokeStyle = "#ffffff"
+    }
 		hands.forEach(hand => hand.drawHand(context, drawOptions))
 
 		context.setTransform(1, 0, 0, 1, 0, 0)

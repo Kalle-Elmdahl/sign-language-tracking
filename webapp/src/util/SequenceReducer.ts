@@ -8,6 +8,11 @@ interface CreateSequenceAction {
   payload: string
 }
 
+interface DeleteSequenceAction {
+  type: "DELETE"
+  payload: number
+}
+
 interface AddElementAction {
   type: "ADD_ELEMENT"
   payload: { sequence: Sequence; element: Hand[] }
@@ -18,12 +23,15 @@ interface RemoveElementAction {
   payload: { sequence: Sequence; index: number }
 }
 
-export type SequenceAction = CreateSequenceAction | AddElementAction | RemoveElementAction
+export type SequenceAction = CreateSequenceAction | DeleteSequenceAction | AddElementAction | RemoveElementAction
 
 export function sequencesReducer(state: Sequence[], { type, payload }: SequenceAction) {
   switch (type) {
     case "CREATE":
       return [...state, { name: payload, elements: [] }]
+
+    case "DELETE":
+      return state.filter((_, i) => i !== payload);
 
     case "ADD_ELEMENT":
       if (payload.element.length !== 2) return state

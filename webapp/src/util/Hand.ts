@@ -57,6 +57,37 @@ export default class Hand {
     Hand.drawHandPart(context, this.pinky, drawOptions)
   }
 
+  compare(hand: Hand) {
+    let maxDistance = 0.05
+    return comparePositions(
+      [
+        this.thumb[0],
+        this.thumb.at(-1) as Coordinate,
+        this.indexFinger[0],
+        this.indexFinger.at(-1) as Coordinate,
+        this.middleFinger[0],
+        this.middleFinger.at(-1) as Coordinate,
+        this.ringFinger[0],
+        this.ringFinger.at(-1) as Coordinate,
+        this.pinky[0],
+        this.pinky.at(-1) as Coordinate,
+      ],
+      [
+        hand.thumb[0],
+        hand.thumb.at(-1) as Coordinate,
+        hand.indexFinger[0],
+        hand.indexFinger.at(-1) as Coordinate,
+        hand.middleFinger[0],
+        hand.middleFinger.at(-1) as Coordinate,
+        hand.ringFinger[0],
+        hand.ringFinger.at(-1) as Coordinate,
+        hand.pinky[0],
+        hand.pinky.at(-1) as Coordinate,
+      ],
+      maxDistance
+    )
+  }
+
   static drawHandPart(context: CanvasRenderingContext2D, part: Coordinate[], drawOptions?: DrawOptions) {
     if (part.length === 0) throw new Error("Illegal hand part")
     const { scaleX, scaleY } = { ...defaultDrawOptions, ...drawOptions }
@@ -66,6 +97,17 @@ export default class Hand {
     context.lineTo((part.at(-1)?.x as number) * scaleX, (part.at(-1)?.y as number) * scaleY)
     context.stroke()
   }
+}
+
+function comparePositions(pos1: Coordinate[], pos2: Coordinate[], maxDistance: number) {
+  for (let i = 0; i < pos1.length; i++) 
+    if(distance(pos1[i], pos2[i]) > maxDistance) return false
+
+  return true
+}
+
+function distance(pos1: Coordinate, pos2: Coordinate) {
+  return Math.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2)
 }
 
 export const refHand = new Hand({

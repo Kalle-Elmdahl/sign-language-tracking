@@ -30,7 +30,6 @@ function TrackHands(video: HTMLVideoElement, handRecogniser: HandLandmarker, set
   let lastVideoTime = 0
 
   const detect = () => {
-    console.log("Paused", video.paused)
     if (video.paused) return
     if (video.currentTime !== lastVideoTime) {
       ++lastVideoTime
@@ -106,7 +105,12 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
       ) : isPlaying ? (
         <>
           <button onClick={() => setIsPlaying(false)}>Exit sequence</button>
-          <HandRecogniserManager video={video.current as HTMLVideoElement} hands={hands} />
+          <HandRecogniserManager
+            video={video.current as HTMLVideoElement}
+            hands={hands}
+            activeSequence={sequences[selectedSequence as number]}
+            onFinish={() => setIsPlaying(false)}
+          />
         </>
       ) : (
         <>

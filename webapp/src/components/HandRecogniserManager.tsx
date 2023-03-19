@@ -8,19 +8,14 @@ interface HandRecogniserProps {
   video: HTMLVideoElement
   hands: Hand[]
   activeSequence?: Sequence
-}
-
-interface PlayingSequence extends Sequence {
-  currentStep: number
+  onFinish?: () => void
 }
 
 export default function HandRecogniserManager(props: HandRecogniserProps) {
-  const { hands, video, activeSequence } = props
+  const { hands, video, activeSequence, onFinish } = props
   const handIcon = useRef<SVGSVGElement>(null)
   const [loaded, setLoaded] = useState<boolean>(false)
-  const [playingSequence, setPlayingSequence] = useState<PlayingSequence | null>(() =>
-    activeSequence ? { ...activeSequence, currentStep: 0 } : null
-  )
+  const [playingSequenceStep, setPlayingSequenceStep] = useState(activeSequence ? 0 : -1)
 
   useEffect(() => {
     if (hands.length === 2) {
@@ -34,6 +29,21 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
     } else setLoaded(false)
   }, [hands.length, handIcon.current])
 
+  useEffect(() => {
+    if (!loaded || hands.length !== 2 || !activeSequence) return
+    const refHands = activeSequence.elements[playingSequenceStep]
+
+    const leftCorrect = hands[0].compare(refHands[0])
+    const rightCorrect = hands[1].compare(refHands[1])
+
+    console.log("left right", leftCorrect, rightCorrect)
+
+    if (leftCorrect && rightCorrect) {
+      if (playingSequenceStep === activeSequence.elements.length - 1) return onFinish?.()
+      setPlayingSequenceStep((x) => ++x)
+    }
+  }, [hands, loaded, activeSequence, playingSequenceStep])
+
   if (!loaded) {
     return (
       <div className="hand-loader">
@@ -45,5 +55,5 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
       </div>
     )
   }
-  return <HandRecogniser video={video} hands={hands} />
+  return <HandRecogniser video={video} hands={hands} refHand={activeSequence?.elements.at(playingSequenceStep)} />
 }

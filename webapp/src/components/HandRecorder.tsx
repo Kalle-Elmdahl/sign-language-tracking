@@ -34,8 +34,6 @@ export default function HandRecorder(props: HandRecorderProps) {
     }, 1000)
   }
 
-  console.log(sequence)
-
   return (
     <>
       <button onClick={handleAdd}>Add position</button>
