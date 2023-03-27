@@ -58,7 +58,7 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
   if (!introPlayed)
     return (
       <video autoPlay onEnded={() => setIntroPlayed(true)} className="intro-video">
-        <source src="https://elmdahl.se/sigma-spegel/Let's_go_to_Bar_Basso%2C_fast_SIGMA.mp4" type="video/mp4" />
+        <source src="https://elmdahl.se/sigma-spegel/Introduction_video_Sign_language_2.mp4" type="video/mp4" />
       </video>
     )
 

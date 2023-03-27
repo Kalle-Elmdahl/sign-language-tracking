@@ -1,4 +1,10 @@
-import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
+/* import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision" */
+import type { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
+
+// @ts-expect-error: Let's ignore a compile error like this unreachable code
+import externalImport from "https://cdn.skypack.dev/@mediapipe/tasks-vision@latest"
+
+const MediaPipe: any = externalImport
 
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import HandRecogniser from "./HandRecogniser"
@@ -13,7 +19,7 @@ import { SequenceAction, initSequences, saveSequences, sequencesReducer } from "
 export type Vision = Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
 
 async function createHandLandmarker(vision: Vision) {
-  return await HandLandmarker.createFromOptions(vision, {
+  return await MediaPipe.HandLandmarker.createFromOptions(vision, {
     baseOptions: {
       modelAssetPath: `http://localhost:5173/hand_landmarker.task`,
     },
@@ -34,7 +40,6 @@ function TrackHands(video: HTMLVideoElement, handRecogniser: HandLandmarker, set
     if (video.currentTime !== lastVideoTime) {
       lastVideoTime = video.currentTime
       const detections = handRecogniser.detectForVideo(video, video.currentTime)
-      console.log("Detections", detections, video.currentTime)
       setHands(detections.landmarks.map((hand) => Hand.fromPositions(hand)))
     }
 

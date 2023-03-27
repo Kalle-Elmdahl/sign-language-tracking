@@ -1,12 +1,18 @@
 /* import reactLogo from './assets/react.svg' */
 import HandRecogniser from "./components/HandRecogniser"
-import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
+/* import { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision" */
+import type { HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision"
+
+// @ts-expect-error: Let's ignore a compile error like this unreachable code
+import externalImport from "https://cdn.skypack.dev/@mediapipe/tasks-vision@latest"
+
+const MediaPipe: any = externalImport
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import HandRecogniserMain, { Vision } from "./components/HandRecogniserMain"
 
 async function loadVision() {
-  return await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm")
+  return await MediaPipe.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm")
 }
 
 function App() {
