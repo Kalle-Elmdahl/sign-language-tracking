@@ -197,3 +197,7 @@ input {
   border: 2px solid #aaa;
   border-radius: 4px;
 }
+
+.intro-video {
+  width: 100%;
+}

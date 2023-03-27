@@ -23,8 +23,6 @@ export default function HandRecogniser({ video, hands, refHand }: HandRecogniser
 	useLayoutEffect(() => {
 		if (!canvas.current || !context) return
 
-    console.log("refHand", refHand)
-
 		const canvasWidth = canvas.current.width
 		const canvasHeight = canvas.current.height
 		context.clearRect(0, 0, canvasWidth, canvasHeight)

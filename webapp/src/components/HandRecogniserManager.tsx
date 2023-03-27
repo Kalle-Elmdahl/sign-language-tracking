@@ -16,6 +16,7 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
   const handIcon = useRef<SVGSVGElement>(null)
   const [loaded, setLoaded] = useState<boolean>(false)
   const [playingSequenceStep, setPlayingSequenceStep] = useState(activeSequence ? 0 : -1)
+  const [introPlayed, setIntroPlayed] = useState<boolean>(false)
 
   useEffect(() => {
     if (hands.length === 2) {
@@ -26,7 +27,7 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
         clearTimeout(timeout)
         handIcon.current?.classList.remove("animate")
       }
-    } else setLoaded(false)
+    }
   }, [hands.length, handIcon.current])
 
   useEffect(() => {
@@ -35,8 +36,6 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
 
     const leftCorrect = hands[0].compare(refHands[0])
     const rightCorrect = hands[1].compare(refHands[1])
-
-    console.log("left right", leftCorrect, rightCorrect)
 
     if (leftCorrect && rightCorrect) {
       if (playingSequenceStep === activeSequence.elements.length - 1) return onFinish?.()
@@ -55,5 +54,13 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
       </div>
     )
   }
+
+  if (!introPlayed)
+    return (
+      <video autoPlay onEnded={() => setIntroPlayed(true)} className="intro-video">
+        <source src="https://elmdahl.se/sigma-spegel/Let's_go_to_Bar_Basso%2C_fast_SIGMA.mp4" type="video/mp4" />
+      </video>
+    )
+
   return <HandRecogniser video={video} hands={hands} refHand={activeSequence?.elements.at(playingSequenceStep)} />
 }

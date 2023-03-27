@@ -15,7 +15,7 @@ export type Vision = Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
 async function createHandLandmarker(vision: Vision) {
   return await HandLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: `https://storage.googleapis.com/mediapipe-assets/hand_landmarker.task`,
+      modelAssetPath: `http://localhost:5173/hand_landmarker.task`,
     },
     runningMode: "VIDEO",
     numHands: 2,
@@ -32,8 +32,9 @@ function TrackHands(video: HTMLVideoElement, handRecogniser: HandLandmarker, set
   const detect = () => {
     if (video.paused) return
     if (video.currentTime !== lastVideoTime) {
-      ++lastVideoTime
+      lastVideoTime = video.currentTime
       const detections = handRecogniser.detectForVideo(video, video.currentTime)
+      console.log("Detections", detections, video.currentTime)
       setHands(detections.landmarks.map((hand) => Hand.fromPositions(hand)))
     }
 
@@ -123,7 +124,7 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
             <>
               {selectedSequence === null || <button onClick={() => setIsPlaying(true)}>Play sequence</button>}
               <button onClick={handlePause}>Stop Tracking</button>
-              <HandRecogniserManager video={video.current as HTMLVideoElement} hands={hands} />
+              <HandRecogniser video={video.current as HTMLVideoElement} hands={hands} />
             </>
           ) : (
             <button onClick={handlePlay}>Start Tracking</button>
