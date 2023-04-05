@@ -1,5 +1,5 @@
 import Hand, { HandPosition } from "./Hand"
-import { Sequence } from "./types"
+import { Element, HandElement, Sequence } from "./types"
 
 const LOCAL_STORAGE_KEY = "__SIGN_LANGUAGE_SEQUENCE"
 
@@ -15,7 +15,12 @@ interface DeleteSequenceAction {
 
 interface AddElementAction {
   type: "ADD_ELEMENT"
-  payload: { sequence: Sequence; element: Hand[] }
+  payload: { sequence: Sequence; element: Element }
+}
+
+interface UpdateElementVideo {
+  type: "UPDATE_ELEMENT_VIDEO"
+  payload: { sequence: Sequence; element: HandElement; video: string }
 }
 
 interface RemoveElementAction {
@@ -23,7 +28,12 @@ interface RemoveElementAction {
   payload: { sequence: Sequence; index: number }
 }
 
-export type SequenceAction = CreateSequenceAction | DeleteSequenceAction | AddElementAction | RemoveElementAction
+export type SequenceAction =
+  | CreateSequenceAction
+  | DeleteSequenceAction
+  | AddElementAction
+  | UpdateElementVideo
+  | RemoveElementAction
 
 export function sequencesReducer(state: Sequence[], { type, payload }: SequenceAction) {
   switch (type) {
@@ -31,15 +41,23 @@ export function sequencesReducer(state: Sequence[], { type, payload }: SequenceA
       return [...state, { name: payload, elements: [] }]
 
     case "DELETE":
-      return state.filter((_, i) => i !== payload);
+      return state.filter((_, i) => i !== payload)
 
     case "ADD_ELEMENT":
-      if (payload.element.length !== 2) return state
       return state.map((s) => {
         if (s === payload.sequence)
           return {
             ...s,
-            elements: [...s.elements, payload.element as [Hand, Hand]],
+            elements: [...s.elements, payload.element],
+          }
+        return s
+      })
+    case "UPDATE_ELEMENT_VIDEO":
+      return state.map((s) => {
+        if (s === payload.sequence)
+          return {
+            ...s,
+            elements: s.elements.map((e) => (e !== payload.element ? e : { ...e, video: payload.video })),
           }
         return s
       })
@@ -61,14 +79,27 @@ export function sequencesReducer(state: Sequence[], { type, payload }: SequenceA
 
 interface SequenceStored {
   name: string
-  elements: [HandPosition, HandPosition][]
+  elements: Array<
+    | string
+    | {
+        hands: [HandPosition, HandPosition]
+        video: string
+      }
+  >
 }
 
 export function initSequences() {
   const sequences = JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY) || "[]") as SequenceStored[]
   return sequences.map((sequence) => ({
     ...sequence,
-    elements: sequence.elements.map(([left, right]) => [new Hand(left), new Hand(right)]),
+    elements: sequence.elements.map((element) => {
+      if (typeof element === "string") return element
+      const [left, right] = element.hands
+      return {
+        hands: [new Hand(left), new Hand(right)],
+        video: element.video,
+      }
+    }),
   })) satisfies Sequence[]
 }
 

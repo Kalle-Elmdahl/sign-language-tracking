@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import Hand from "../util/Hand"
 import HandIcon from "./icons/HandIcon"
 import HandRecogniser from "./HandRecogniser"
-import { Sequence } from "../util/types"
+import { Element, Sequence } from "../util/types"
 
 interface HandRecogniserProps {
   video: HTMLVideoElement
@@ -15,8 +15,7 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
   const { hands, video, activeSequence, onFinish } = props
   const handIcon = useRef<SVGSVGElement>(null)
   const [loaded, setLoaded] = useState<boolean>(false)
-  const [playingSequenceStep, setPlayingSequenceStep] = useState(activeSequence ? 0 : -1)
-  const [introPlayed, setIntroPlayed] = useState<boolean>(false)
+  const [playingSequenceStep, setPlayingSequenceStep] = useState<number>(activeSequence ? 0 : -1)
 
   useEffect(() => {
     if (hands.length === 2) {
@@ -32,14 +31,16 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
 
   useEffect(() => {
     if (!loaded || hands.length !== 2 || !activeSequence) return
-    const refHands = activeSequence.elements[playingSequenceStep]
+    const currentElement = activeSequence.elements[playingSequenceStep]
 
-    const leftCorrect = hands[0].compare(refHands[0])
-    const rightCorrect = hands[1].compare(refHands[1])
+    if (typeof currentElement === "string") return
+
+    const leftCorrect = hands[0].compare(currentElement.hands[0])
+    const rightCorrect = hands[1].compare(currentElement.hands[1])
 
     if (leftCorrect && rightCorrect) {
       if (playingSequenceStep === activeSequence.elements.length - 1) return onFinish?.()
-      setPlayingSequenceStep((x) => ++x)
+      setPlayingSequenceStep((x) => x + 1)
     }
   }, [hands, loaded, activeSequence, playingSequenceStep])
 
@@ -55,12 +56,29 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
     )
   }
 
-  if (!introPlayed)
+  const currentElement = activeSequence?.elements.at(playingSequenceStep)
+
+  /* if (!introPlayed)
     return (
       <video autoPlay onEnded={() => setIntroPlayed(true)} className="intro-video">
         <source src="https://elmdahl.se/sigma-spegel/Introduction_video_Sign_language_2.mp4" type="video/mp4" />
       </video>
+    ) */
+
+  if (typeof currentElement === "string")
+    return (
+      <video
+        autoPlay
+        onEnded={() => {
+          if (!activeSequence) return
+          if (playingSequenceStep === activeSequence.elements.length - 1) return onFinish?.()
+          setPlayingSequenceStep((x) => x + 1)
+        }}
+        className="intro-video"
+      >
+        <source src={currentElement} type="video/mp4" />
+      </video>
     )
 
-  return <HandRecogniser video={video} hands={hands} refHand={activeSequence?.elements.at(playingSequenceStep)} />
+  return <HandRecogniser video={video} hands={hands} refHand={currentElement?.hands} />
 }
