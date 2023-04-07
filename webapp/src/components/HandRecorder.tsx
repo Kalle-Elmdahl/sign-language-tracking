@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { Fragment, useEffect, useRef, useState } from "react"
 import Hand from "../util/Hand"
 import { HandElement, Sequence } from "../util/types"
 import HandPreview from "./HandPreview"
@@ -60,26 +60,11 @@ export default function HandRecorder(props: HandRecorderProps) {
         <h3>{sequence.name} (Click frame to delete)</h3>
         <div>
           <div className="sequence-previewer-list">
-            {sequence.elements.map((element, index) =>
-              typeof element === "string" ? (
-                <video
-                  key={index}
-                  width={(175 * 16) / 9}
-                  height={175}
-                  onClick={() =>
-                    setSequence({
-                      type: "REMOVE_ELEMENT",
-                      payload: { sequence, index },
-                    })
-                  }
-                >
-                  <source src={element} type="video/mp4" />
-                </video>
-              ) : (
-                <div key={index}>
-                  <HandPreview
+            {sequence.elements.map((element, index) => (
+              <Fragment key={index}>
+                {typeof element === "string" ? (
+                  <video
                     key={index}
-                    hands={element.hands}
                     width={(175 * 16) / 9}
                     height={175}
                     onClick={() =>
@@ -88,12 +73,40 @@ export default function HandRecorder(props: HandRecorderProps) {
                         payload: { sequence, index },
                       })
                     }
-                  />
-                  <p>With video</p>
-                  <input type="text" defaultValue={element.video} onChange={updateElementVideo(element)} />
-                </div>
-              )
-            )}
+                  >
+                    <source src={element} type="video/mp4" />
+                  </video>
+                ) : (
+                  <div>
+                    <HandPreview
+                      hands={element.hands}
+                      width={(175 * 16) / 9}
+                      height={175}
+                      onClick={() =>
+                        setSequence({
+                          type: "REMOVE_ELEMENT",
+                          payload: { sequence, index },
+                        })
+                      }
+                    />
+                    <p>With video</p>
+                    <input type="text" defaultValue={element.video} onChange={updateElementVideo(element)} />
+                  </div>
+                )}
+                {index < sequence.elements.length - 1 && (
+                  <button
+                    onClick={() =>
+                      setSequence({
+                        type: "REARRANGE_ELEMENT",
+                        payload: { sequence, index },
+                      })
+                    }
+                  >
+                    &lt;&gt;
+                  </button>
+                )}
+              </Fragment>
+            ))}
             <form
               style={{ width: `${(175 * 16) / 9}px` }}
               onSubmit={(e) => {

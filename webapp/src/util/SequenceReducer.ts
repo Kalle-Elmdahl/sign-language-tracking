@@ -23,6 +23,11 @@ interface UpdateElementVideo {
   payload: { sequence: Sequence; element: HandElement; video: string }
 }
 
+interface RearrangeElementAction {
+  type: "REARRANGE_ELEMENT"
+  payload: { sequence: Sequence; index: number }
+}
+
 interface RemoveElementAction {
   type: "REMOVE_ELEMENT"
   payload: { sequence: Sequence; index: number }
@@ -33,6 +38,7 @@ export type SequenceAction =
   | DeleteSequenceAction
   | AddElementAction
   | UpdateElementVideo
+  | RearrangeElementAction
   | RemoveElementAction
 
 export function sequencesReducer(state: Sequence[], { type, payload }: SequenceAction) {
@@ -59,6 +65,21 @@ export function sequencesReducer(state: Sequence[], { type, payload }: SequenceA
             ...s,
             elements: s.elements.map((e) => (e !== payload.element ? e : { ...e, video: payload.video })),
           }
+        return s
+      })
+
+    case "REARRANGE_ELEMENT":
+      return state.map((s) => {
+        if (s === payload.sequence) {
+          const newElements = [...s.elements]
+          const temp = newElements[payload.index]
+          newElements[payload.index] = newElements[payload.index + 1]
+          newElements[payload.index + 1] = temp
+          return {
+            ...s,
+            elements: newElements,
+          }
+        }
         return s
       })
 
