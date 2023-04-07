@@ -6,7 +6,7 @@ import Hand, { refHand } from "../util/Hand"
 interface HandRecogniserProps {
   video?: HTMLVideoElement
   hands: Hand[]
-  refHand?: [Hand, Hand]
+  refHand?: Hand[]
 }
 
 export default function HandRecogniser({ video, hands, refHand }: HandRecogniserProps) {

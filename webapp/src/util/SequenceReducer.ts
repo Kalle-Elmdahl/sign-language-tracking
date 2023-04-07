@@ -82,7 +82,7 @@ interface SequenceStored {
   elements: Array<
     | string
     | {
-        hands: [HandPosition, HandPosition]
+        hands: HandPosition[]
         video: string
       }
   >
@@ -94,9 +94,8 @@ export function initSequences() {
     ...sequence,
     elements: sequence.elements.map((element) => {
       if (typeof element === "string") return element
-      const [left, right] = element.hands
       return {
-        hands: [new Hand(left), new Hand(right)],
+        hands: element.hands.map((hand) => new Hand(hand)),
         video: element.video,
       }
     }),

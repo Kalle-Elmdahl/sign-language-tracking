@@ -17,13 +17,14 @@ export default function HandRecorder(props: HandRecorderProps) {
   useEffect(() => {
     if (countdown.current === 0) {
       countdown.current = -1
-      if (hands.length !== 2) return alert("Two hands were not visible program will ignore this recording")
+      if (hands.length < 1 || hands.length > 2)
+        return alert("Two hands were not visible program will ignore this recording")
       setSequence({
         type: "ADD_ELEMENT",
         payload: {
           sequence,
           element: {
-            hands: hands as [Hand, Hand],
+            hands,
           },
         },
       })

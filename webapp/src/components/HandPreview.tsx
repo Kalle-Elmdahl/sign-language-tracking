@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from "react"
 import Hand from "../util/Hand"
 
 interface HandPreviewProps extends React.HTMLProps<HTMLCanvasElement> {
-  hands: [Hand, Hand]
+  hands: Hand[]
 }
 
 const HandPreview = memo(function HandPreview(props: HandPreviewProps) {

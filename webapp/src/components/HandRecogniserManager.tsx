@@ -30,15 +30,15 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
   }, [hands.length, handIcon.current])
 
   useEffect(() => {
-    if (!loaded || hands.length !== 2 || !activeSequence) return
+    if (!loaded || hands.length === 0 || !activeSequence) return
     const currentElement = activeSequence.elements[playingSequenceStep]
 
     if (typeof currentElement === "string") return
+    if (hands.length !== currentElement.hands.length) return
 
-    const leftCorrect = hands[0].compare(currentElement.hands[0])
-    const rightCorrect = hands[1].compare(currentElement.hands[1])
+    const result = hands.map((hand, index) => hand.compare(currentElement.hands[index]))
 
-    if (leftCorrect && rightCorrect) {
+    if (result.every((r) => r)) {
       if (playingSequenceStep === activeSequence.elements.length - 1) return onFinish?.()
       setPlayingSequenceStep((x) => x + 1)
     }

@@ -1,7 +1,7 @@
 import Hand from "./Hand"
 
 export interface HandElement {
-  hands: [Hand, Hand]
+  hands: Hand[]
   video?: string
 }
 
