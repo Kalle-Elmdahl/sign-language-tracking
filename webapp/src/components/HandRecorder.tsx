@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import Hand from "../util/Hand"
-import { Sequence } from "../util/types"
+import { HandElement, Sequence } from "../util/types"
 import HandPreview from "./HandPreview"
 import { SequenceAction } from "../util/SequenceReducer"
 
@@ -37,9 +37,19 @@ export default function HandRecorder(props: HandRecorderProps) {
     }, 1000)
   }
 
-  /* const handleUpdateElementVideo: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setSequence
-  } */
+  const updateElementVideo = (element: HandElement) => {
+    const handler: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+      setSequence({
+        type: "UPDATE_ELEMENT_VIDEO",
+        payload: {
+          sequence,
+          element,
+          video: e.target.value,
+        },
+      })
+    }
+    return handler
+  }
 
   return (
     <>
@@ -79,7 +89,7 @@ export default function HandRecorder(props: HandRecorderProps) {
                     }
                   />
                   <p>With video</p>
-                  <input type="text" value={element.video} /* onChange={handleUpdateElementVideo} */ />
+                  <input type="text" defaultValue={element.video} onChange={updateElementVideo(element)} />
                 </div>
               )
             )}

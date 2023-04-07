@@ -112,7 +112,7 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
         <>
           <button onClick={() => setIsPlaying(false)}>Exit sequence</button>
           <HandRecogniserManager
-            video={video.current as HTMLVideoElement}
+            /* video={video.current as HTMLVideoElement} */
             hands={hands}
             activeSequence={sequences[selectedSequence as number]}
             onFinish={() => setIsPlaying(false)}

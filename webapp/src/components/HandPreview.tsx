@@ -15,7 +15,7 @@ const HandPreview = memo(function HandPreview(props: HandPreviewProps) {
 
     const rect = canvas.current.getBoundingClientRect()
 
-    context.strokeStyle = "#5EBB45"
+    context.strokeStyle = "#1935BF"
     context.lineCap = "round"
     context.lineWidth = 10
     context.clearRect(0, 0, rect.width, rect.height)

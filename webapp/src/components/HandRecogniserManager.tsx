@@ -5,7 +5,7 @@ import HandRecogniser from "./HandRecogniser"
 import { Element, Sequence } from "../util/types"
 
 interface HandRecogniserProps {
-  video: HTMLVideoElement
+  video?: HTMLVideoElement
   hands: Hand[]
   activeSequence?: Sequence
   onFinish?: () => void
@@ -47,11 +47,12 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
   if (!loaded) {
     return (
       <div className="hand-loader">
-        <h2>Show your hands</h2>
+        <h1>TRY ME!</h1>
         <div>
-          <HandIcon />
-          <HandIcon color="#9ad093" className="loading-hand" ref={handIcon} />
+          <HandIcon className="normal-hand" />
+          <HandIcon color="#1935BF" className="loading-hand" ref={handIcon} />
         </div>
+        <h2>Show your hands to unlock!</h2>
       </div>
     )
   }
@@ -69,11 +70,20 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
           console.log(e.currentTarget.currentTime)
           setPlayingSequenceStep((x) => x + 1)
         }}
-        className="intro-video"
+        className="video-frame"
       >
         <source src={currentElement} type="video/mp4" />
       </video>
     )
 
-  return <HandRecogniser video={video} hands={hands} refHand={currentElement?.hands} />
+  return (
+    <>
+      {currentElement?.video && (
+        <video autoPlay loop className="frame-overlay-video">
+          <source src={currentElement.video} type="video/mp4" />
+        </video>
+      )}
+      <HandRecogniser video={video} hands={hands} refHand={currentElement?.hands} />
+    </>
+  )
 }

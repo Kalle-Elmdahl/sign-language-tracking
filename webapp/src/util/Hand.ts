@@ -1,3 +1,7 @@
+
+// Higher max distance => less exactness required.
+const MAX_DISTANCE = 0.1
+
 interface Coordinate {
   x: number
   y: number
@@ -58,7 +62,6 @@ export default class Hand {
   }
 
   compare(hand: Hand) {
-    let maxDistance = 0.05
     return comparePositions(
       [
         this.thumb[0],
@@ -84,7 +87,7 @@ export default class Hand {
         hand.pinky[0],
         hand.pinky.at(-1) as Coordinate,
       ],
-      maxDistance
+      MAX_DISTANCE
     )
   }
 
@@ -100,8 +103,9 @@ export default class Hand {
 }
 
 function comparePositions(pos1: Coordinate[], pos2: Coordinate[], maxDistance: number) {
-  for (let i = 0; i < pos1.length; i++) 
-    if(distance(pos1[i], pos2[i]) > maxDistance) return false
+  for (let i = 0; i < pos1.length; i++) {
+    if (distance(pos1[i], pos2[i]) > maxDistance) return false
+  }
 
   return true
 }
