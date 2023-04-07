@@ -1,4 +1,6 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -190,6 +192,10 @@ input {
 .sequence-previewer-list {
   display: flex;
   gap: 20px;
+  align-items: center;
+}
+
+.sequence-previewer-list > * {
   flex-shrink: 0;
 }
 
