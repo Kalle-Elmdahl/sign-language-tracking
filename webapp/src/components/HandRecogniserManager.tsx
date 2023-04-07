@@ -58,20 +58,15 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
 
   const currentElement = activeSequence?.elements.at(playingSequenceStep)
 
-  /* if (!introPlayed)
-    return (
-      <video autoPlay onEnded={() => setIntroPlayed(true)} className="intro-video">
-        <source src="https://elmdahl.se/sigma-spegel/Introduction_video_Sign_language_2.mp4" type="video/mp4" />
-      </video>
-    ) */
-
   if (typeof currentElement === "string")
     return (
       <video
+        key={currentElement}
         autoPlay
-        onEnded={() => {
+        onEnded={(e) => {
           if (!activeSequence) return
           if (playingSequenceStep === activeSequence.elements.length - 1) return onFinish?.()
+          console.log(e.currentTarget.currentTime)
           setPlayingSequenceStep((x) => x + 1)
         }}
         className="intro-video"
