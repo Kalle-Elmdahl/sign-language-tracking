@@ -79,7 +79,7 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
   return (
     <>
       {currentElement?.video && (
-        <video autoPlay loop className="frame-overlay-video">
+        <video key={currentElement.video} autoPlay loop className="frame-overlay-video">
           <source src={currentElement.video} type="video/mp4" />
         </video>
       )}
