@@ -115,7 +115,6 @@ export default function HandRecogniserMain({ vision }: HandRecogniserMainProps) 
             /* video={video.current as HTMLVideoElement} */
             hands={hands}
             activeSequence={sequences[selectedSequence as number]}
-            onFinish={() => setIsPlaying(false)}
           />
         </>
       ) : (

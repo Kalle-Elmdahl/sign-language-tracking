@@ -35,7 +35,8 @@ body {
   justify-content: center;
   width: 100%;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 h1 {
@@ -237,5 +238,6 @@ input {
   max-height: 30vh;
   position: absolute;
   top: 0;
-  right: 0;
+  right: 50%;
+  transform: translateX(-50%);
 }
