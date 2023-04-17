@@ -38,7 +38,7 @@ export default function HandRecogniserManager(props: HandRecogniserProps) {
     const currentElement = activeSequence.elements[playingSequenceStep]
 
     if (typeof currentElement === "string") return
-    if (hands.length !== currentElement.hands.length) return
+    if (hands.length < currentElement.hands.length) return
 
     const result =
       hands.length === currentElement.hands.length
